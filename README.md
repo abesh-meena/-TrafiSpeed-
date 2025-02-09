@@ -1,2 +1,2 @@
-# vehicle-speed-detection-using-opencv-python
-xml file vehicle detection 
+# TrafiSpeed-using-opencv-python
+xml file TrafiSpeed detection 
