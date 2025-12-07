@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  speed-detection:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./outputs:/app/outputs
+      - ./vech.xml:/app/vech.xml
+    environment:
+      - FLASK_ENV=production
+    restart: unless-stopped

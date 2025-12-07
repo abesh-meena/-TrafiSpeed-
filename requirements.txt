@@ -1,0 +1,6 @@
+Flask==2.0.3
+opencv-python==4.5.5.64
+numpy==1.21.6
+Werkzeug==2.0.3
+dlib>=19.22.0
+gunicorn==20.1.0
