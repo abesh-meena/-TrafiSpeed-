@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Speed Detection System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 30px auto;
+            max-width: 900px;
+            padding: 40px;
+        }
+        
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header-section h1 {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 2.5rem;
+        }
+        
+        .header-section p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .upload-area {
+            border: 3px dashed #3498db;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+        
+        .upload-area:hover {
+            border-color: #2980b9;
+            background: #e3f2fd;
+            transform: translateY(-2px);
+        }
+        
+        .upload-area.dragover {
+            border-color: #27ae60;
+            background: #d4edda;
+        }
+        
+        .upload-icon {
+            font-size: 4rem;
+            color: #3498db;
+            margin-bottom: 20px;
+        }
+        
+        .btn-upload {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .btn-upload:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        }
+        
+        .progress-section {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .progress {
+            height: 25px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #e9ecef;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            transition: width 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .status-message {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        
+        .status-processing {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .result-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+        
+        .video-preview {
+            width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .btn-download {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(39, 174, 96, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+        
+        .features-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+        }
+        
+        .feature-card {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .feature-description {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+            font-weight: 500;
+        }
+        
+        .spinner-border {
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <div class="header-section">
+                <h1><i class="fas fa-tachometer-alt"></i> Traffic Speed Detection</h1>
+                <p>Upload your traffic video to detect and track vehicle speeds automatically</p>
+            </div>
+            
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="upload-section">
+                <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <h3>Drop your video file here</h3>
+                        <p>or click to browse</p>
+                        <p class="text-muted">Supported formats: MP4, AVI, MOV, MKV (Max: 100MB)</p>
+                        <input type="file" id="fileInput" name="file" accept=".mp4,.avi,.mov,.mkv" style="display: none;">
+                        <button type="button" class="btn btn-upload" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-folder-open"></i> Choose File
+                        </button>
+                    </div>
+                    
+                    <div id="fileInfo" class="mt-3" style="display: none;">
+                        <div class="alert alert-info">
+                            <i class="fas fa-file-video"></i> <span id="fileName"></span>
+                            <button type="submit" class="btn btn-primary float-end">
+                                <i class="fas fa-play"></i> Start Processing
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="progress-section" id="progressSection">
+                <h4><i class="fas fa-cog fa-spin"></i> Processing Video</h4>
+                <div class="progress">
+                    <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%">
+                        0%
+                    </div>
+                </div>
+                <div class="status-message status-processing" id="statusMessage">
+                    <i class="fas fa-spinner fa-spin"></i> <span id="detailedProgress">Initializing...</span>
+                </div>
+            </div>
+            
+            <div class="result-section" id="resultSection">
+                <h4><i class="fas fa-check-circle text-success"></i> Processing Complete!</h4>
+                <div class="row">
+                    <div class="col-md-8">
+                        <video id="outputVideo" class="video-preview" controls autoplay muted>
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Results Summary</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Vehicle detection completed</li>
+                            <li><i class="fas fa-check text-success"></i> Speed tracking applied</li>
+                            <li><i class="fas fa-check text-success"></i> Video annotation added</li>
+                        </ul>
+                        <a href="#" id="downloadLink" class="btn btn-download" download>
+                            <i class="fas fa-download"></i> Download Result
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="features-section">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <i class="fas fa-car feature-icon"></i>
+                            <div class="feature-title">Vehicle Detection</div>
+                            <div class="feature-description">Advanced AI-powered vehicle detection using OpenCV</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <i class="fas fa-tachometer-alt feature-icon"></i>
+                            <div class="feature-title">Speed Calculation</div>
+                            <div class="feature-description">Real-time speed estimation in km/h with tracking</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <i class="fas fa-video feature-icon"></i>
+                            <div class="feature-title">Video Output</div>
+                            <div class="feature-description">Annotated video with speed overlays</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="text-center mt-4 mb-3">
+        <p class="fw-bold text-dark">Made by ABESH MEENA</p>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const progressSection = document.getElementById('progressSection');
+        const progressBar = document.getElementById('progressBar');
+        const statusMessage = document.getElementById('statusMessage');
+        const resultSection = document.getElementById('resultSection');
+        const outputVideo = document.getElementById('outputVideo');
+        const downloadLink = document.getElementById('downloadLink');
+        
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect();
+            }
+        });
+        
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (file) {
+                fileName.textContent = file.name;
+                fileInfo.style.display = 'block';
+            }
+        }
+        
+        uploadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(uploadForm);
+            
+            // Show progress section
+            progressSection.style.display = 'block';
+            fileInfo.style.display = 'none';
+            resultSection.style.display = 'none';
+            
+            // Submit form
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Start polling for status
+                pollStatus();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                statusMessage.className = 'status-message status-error';
+                statusMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error uploading file';
+            });
+        });
+        
+        function pollStatus() {
+            const interval = setInterval(() => {
+                fetch('/status')
+                .then(response => response.json())
+                .then(data => {
+                    // Update progress bar
+                    progressBar.style.width = data.progress + '%';
+                    progressBar.textContent = Math.round(data.progress) + '%';
+                    
+                    // Update status message with detailed progress
+                    statusMessage.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + data.message;
+                    
+                    // Also update detailed progress span if it exists
+                    const detailedProgressSpan = document.getElementById('detailedProgress');
+                    if (detailedProgressSpan) {
+                        detailedProgressSpan.textContent = data.message;
+                    }
+                    
+                    if (data.progress >= 100) {
+                        clearInterval(interval);
+                        statusMessage.className = 'status-message status-success';
+                        statusMessage.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
+                        
+                        // Show result section
+                        if (data.current_file) {
+                            outputVideo.src = '/outputs/' + data.current_file;
+                            downloadLink.href = '/download/' + data.current_file;
+                            resultSection.style.display = 'block';
+                            
+                            // Force video to load and play
+                            outputVideo.load();
+                            outputVideo.play().catch(e => {
+                                console.log('Auto-play prevented, user needs to click play');
+                            });
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error polling status:', error);
+                    clearInterval(interval);
+                    statusMessage.className = 'status-message status-error';
+                    statusMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error processing video';
+                });
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
+
